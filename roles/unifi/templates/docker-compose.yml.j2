@@ -1,0 +1,74 @@
+services:
+  unifi-controller:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi-controller
+    environment:
+      - PUID={{ unifi_user_uid }}
+      - PGID={{ unifi_user_gid }}
+      - TZ=Europe/London
+      - MONGO_USER={{ unifi_mongodb_user }}
+      - MONGO_PASS={{ unifi_mongodb_password }}
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DBNAME={{ unifi_mongodb_database }}
+    volumes:
+      - unifi_data:/config
+    ports:
+      - 8080:8080
+      - 3478:3478/udp
+      - 10001:10001/udp
+      - 8843:8843
+      - 8880:8880
+      - 6789:6789
+      - 5514:5514/udp
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    networks:
+      - unifi
+
+  mongodb:
+    image: docker.io/mongo:4.4.25
+    container_name: mongodb
+    volumes:
+      - mongodb_data:/data/db
+    environment: []
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+    networks:
+      - unifi
+
+  nginx:
+    image: nginx:1.27-bookworm
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 443:443
+    volumes:
+      - {{ unifi_nginx_config_dir }}:/etc/nginx
+      - {{ unifi_cert_dir }}:/etc/nginx/certs:ro
+    depends_on:
+      - unifi-controller
+    networks:
+      - unifi
+
+  backup-toolkit:
+    container_name: backup-toolkit
+    image: backup-toolkit:local
+    command: sleep infinity
+    restart: unless-stopped
+    volumes:
+      - unifi_data:/backup/unifi
+      - mongodb_data:/backup/mongodb
+    env_file:
+      - ./backup-toolkit.env
+    networks:
+      - unifi
+
+networks:
+  unifi:
+
+volumes:
+  unifi_data:
+  mongodb_data:

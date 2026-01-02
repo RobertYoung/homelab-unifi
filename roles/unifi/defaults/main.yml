@@ -1,0 +1,29 @@
+---
+# UniFi role defaults
+
+# Service configuration
+unifi_service_name: unifi
+
+# Directory paths
+unifi_config_dir: /etc/unifi
+
+# User configuration
+unifi_user: ansible
+unifi_user_uid: 1000
+unifi_user_gid: 1000
+
+# MongoDB configuration
+unifi_mongodb_user: unifi
+unifi_mongodb_password: changeme
+unifi_mongodb_database: unifi
+
+# Nginx configuration
+unifi_nginx_config_dir: /etc/unifi/nginx
+unifi_nginx_domain: ""
+unifi_cert_dir: /etc/unifi/certs
+
+# Backup configuration
+unifi_backup_aws_access_key: ""
+unifi_backup_aws_secret_access_key: ""
+unifi_backup_aws_region: eu-west-2
+unifi_backup_s3_bucket: home-server-backup.iamrobertyoung.co.uk

@@ -1,0 +1,67 @@
+---
+- name: UniFi server configuration
+  hosts: unifi
+  vars:
+    hostname: unifi
+    domain: local.iamrobertyoung.co.uk
+    fqdn: "{{ hostname }}.{{ domain }}"
+
+  roles:
+    - role: configure-system
+      tags: [configure-system]
+      vars:
+        configure_system_hostname: "{{ hostname }}"
+        configure_system_domain: "{{ domain }}"
+
+    - role: shell
+      tags: [shell]
+      vars:
+        shell_hostname: "{{ hostname }}"
+        shell_user: noxious
+        shell_home_directory: /home/noxious
+
+    - role: shell
+      tags: [shell]
+      vars:
+        shell_hostname: "{{ hostname }}"
+        shell_user: root
+        shell_home_directory: /root
+        shell_show_pretty_info: false
+
+    - role: docker
+      tags: [docker]
+
+    - role: step-ca-client
+      tags: [step-ca-client]
+      vars:
+        step_ca_client_provisioner_password: "{{ lookup('aws_ssm', '/home-server/step-ca-ansible-password') }}"
+        step_ca_client_post_renew_commands:
+          - "cp /etc/ssl/certs/{{ fqdn }}.crt /etc/unifi/certs/"
+          - "cp /etc/ssl/private/{{ fqdn }}.pem /etc/unifi/certs/"
+          - "docker kill -s HUP nginx"
+
+    - role: telegraf
+      tags: [telegraf]
+      vars:
+        telegraf_influxdb_url: "https://influxdb.{{ domain }}"
+        telegraf_influxdb_port: 8086
+        telegraf_influxdb_organisation: "0dd8df669872ba9e"
+        telegraf_influxdb_token: "{{ lookup('aws_ssm', '/home-server/influxdb-token') }}"
+        telegraf_influxdb_bucket: "home-server"
+
+    - role: syslog
+      tags: [syslog]
+      vars:
+        syslog_fqdn: "{{ fqdn }}"
+
+    - role: wazuh-agent
+      tags: [wazuh-agent]
+
+    - role: unifi
+      tags: [unifi]
+      vars:
+        unifi_nginx_domain: "{{ fqdn }}"
+        unifi_mongodb_root_password: "{{ lookup('aws_ssm', '/home-server/mongodb-root-password') }}"
+        unifi_mongodb_password: "{{ lookup('aws_ssm', '/home-server/mongodb-unifi-password') }}"
+        unifi_backup_aws_access_key: "{{ lookup('aws_ssm', '/home-server/access-key') }}"
+        unifi_backup_aws_secret_access_key: "{{ lookup('aws_ssm', '/home-server/secret-access-key') }}"

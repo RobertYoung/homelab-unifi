@@ -1,0 +1,15 @@
+---
+- name: Restart unifi
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ unifi_service_name }}"
+    state: restarted
+    daemon_reload: true
+
+- name: Enable unifi backup timer
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ unifi_service_name }}-backup.timer"
+    enabled: true
+    state: started
+    daemon_reload: true

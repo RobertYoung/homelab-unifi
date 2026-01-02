@@ -1,0 +1,123 @@
+---
+- name: Create config directory for unifi
+  become: true
+  ansible.builtin.file:
+    path: "{{ unifi_config_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+
+- name: Create nginx config directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ unifi_nginx_config_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+
+- name: Create certs directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ unifi_cert_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+
+- name: Copy nginx config
+  become: true
+  ansible.builtin.template:
+    src: "nginx/nginx.conf.j2"
+    dest: "{{ unifi_nginx_config_dir }}/nginx.conf"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+    mode: "0644"
+  notify: Restart unifi
+
+- name: Copy docker-compose file
+  become: true
+  ansible.builtin.template:
+    src: "docker-compose.yml.j2"
+    dest: "{{ unifi_config_dir }}/docker-compose.yml"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+    mode: "0644"
+  notify: Restart unifi
+
+- name: Copy backup-toolkit env file
+  become: true
+  ansible.builtin.template:
+    src: "backup-toolkit.env.j2"
+    dest: "{{ unifi_config_dir }}/backup-toolkit.env"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+    mode: "0600"
+  notify: Restart unifi
+
+- name: Copy backup-toolkit Dockerfile
+  ansible.builtin.copy:
+    src: "Dockerfile"
+    dest: /tmp/Dockerfile
+    mode: "0644"
+  register: unifi_dockerfile_copy
+
+- name: Copy backup-toolkit script
+  ansible.builtin.copy:
+    src: "backup.sh"
+    dest: /tmp/backup.sh
+    mode: "0644"
+  register: unifi_backup_script_copy
+
+- name: Build backup-toolkit Docker image
+  become: true
+  community.docker.docker_image:
+    name: backup-toolkit
+    tag: local
+    source: build
+    push: false
+    build:
+      path: /tmp
+    force_source: "{{ unifi_dockerfile_copy.changed or unifi_backup_script_copy.changed }}"
+    state: present
+  notify: Restart unifi
+
+- name: Create unifi systemd service file
+  become: true
+  ansible.builtin.template:
+    src: "unifi.service.j2"
+    dest: "/etc/systemd/system/{{ unifi_service_name }}.service"
+    owner: root
+    mode: "0644"
+  notify: Restart unifi
+
+- name: Enable and start unifi service
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ unifi_service_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Create unifi backup systemd service file
+  become: true
+  ansible.builtin.template:
+    src: "backup/backup.service.j2"
+    dest: "/etc/systemd/system/{{ unifi_service_name }}-backup.service"
+    owner: root
+    mode: "0644"
+  vars:
+    service: "{{ unifi_service_name }}"
+
+- name: Create unifi backup systemd timer file
+  become: true
+  ansible.builtin.template:
+    src: "backup/backup.timer.j2"
+    dest: "/etc/systemd/system/{{ unifi_service_name }}-backup.timer"
+    owner: root
+    mode: "0644"
+  vars:
+    service: "{{ unifi_service_name }}"
+    cron: "*-*-* 04:00:00"
+  notify: Enable unifi backup timer
