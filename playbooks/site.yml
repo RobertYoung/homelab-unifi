@@ -61,7 +61,7 @@
       tags: [unifi]
       vars:
         unifi_nginx_domain: "{{ fqdn }}"
-        unifi_mongodb_root_password: "{{ lookup('aws_ssm', '/home-server/mongodb-root-password') }}"
-        unifi_mongodb_password: "{{ lookup('aws_ssm', '/home-server/mongodb-unifi-password') }}"
+        unifi_mongodb_root_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-root-password') }}"
+        unifi_mongodb_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-unifi-password') }}"
         unifi_backup_aws_access_key: "{{ lookup('aws_ssm', '/home-server/access-key') }}"
         unifi_backup_aws_secret_access_key: "{{ lookup('aws_ssm', '/home-server/secret-access-key') }}"
