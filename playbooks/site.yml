@@ -38,7 +38,7 @@
         step_ca_client_post_renew_commands:
           - "cp /etc/ssl/certs/{{ fqdn }}.crt /etc/unifi/certs/"
           - "cp /etc/ssl/private/{{ fqdn }}.pem /etc/unifi/certs/"
-          - "docker kill -s HUP nginx"
+          - "docker kill -s HUP nginx || echo 'Nginx container not running'"
 
     - role: telegraf
       tags: [telegraf]
