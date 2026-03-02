@@ -1,0 +1,19 @@
+http:
+  routers:
+    unifi:
+      rule: "Host(`{{ unifi_service_domain }}`)"
+      entrypoints:
+        - websecure
+      service: unifi
+      tls: {}
+
+  services:
+    unifi:
+      loadBalancer:
+        serversTransport: insecure
+        servers:
+          - url: "https://unifi-controller:8443"
+
+  serversTransports:
+    insecure:
+      insecureSkipVerify: true
