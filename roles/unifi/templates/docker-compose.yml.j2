@@ -39,17 +39,16 @@ services:
     networks:
       - unifi
 
-  nginx:
-    image: nginx:1.27-bookworm
-    container_name: nginx
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
     restart: unless-stopped
     ports:
-      - 443:443
+      - "443:443"
     volumes:
-      - {{ unifi_nginx_config_dir }}:/etc/nginx
-      - {{ unifi_cert_dir }}:/etc/nginx/certs:ro
-    depends_on:
-      - unifi-controller
+      - /etc/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - /etc/traefik/dynamic:/etc/traefik/dynamic:ro
+      - {{ unifi_cert_dir }}:/certs:ro
     networks:
       - unifi
 

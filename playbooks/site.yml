@@ -38,7 +38,7 @@
         step_ca_client_post_renew_commands:
           - "cp /etc/ssl/certs/{{ fqdn }}.crt /etc/unifi/certs/"
           - "cp /etc/ssl/private/{{ fqdn }}.pem /etc/unifi/certs/"
-          - "docker kill -s HUP nginx || echo 'Nginx container not running'"
+          - "docker kill --signal=HUP traefik || echo 'Traefik not running'"
 
     - role: telegraf
       tags: [telegraf]
@@ -60,7 +60,7 @@
     - role: unifi
       tags: [unifi]
       vars:
-        unifi_nginx_domain: "{{ fqdn }}"
+        unifi_service_domain: "{{ fqdn }}"
         unifi_mongodb_root_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-root-password') }}"
         unifi_mongodb_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-unifi-password') }}"
         unifi_backup_aws_access_key: "{{ lookup('aws_ssm', '/home-server/access-key') }}"
