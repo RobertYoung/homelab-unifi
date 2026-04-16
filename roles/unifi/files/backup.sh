@@ -5,6 +5,7 @@ set -e
 echo "Running backup script for $SERVICE_NAME"
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+TIMESTAMP_RFC3339=$(date --rfc-3339=seconds)
 BACKUP_DIR="/tmp/backup-${TIMESTAMP}"
 FILENAME="${SERVICE_NAME}-backup-${TIMESTAMP}.tar.gz"
 TAR_FILE="/tmp/${FILENAME}"
@@ -34,6 +35,10 @@ trap - ERR
 # Upload to S3
 echo "Uploading to s3://${BUCKET_NAME}/${SERVICE_NAME}/${SERVICE_NAME}-latest.tar.gz"
 aws s3 cp "${TAR_FILE}" "s3://${BUCKET_NAME}/${SERVICE_NAME}/${SERVICE_NAME}-latest.tar.gz"
+
+# Publish backup time to MQTT
+echo "Publishing time to topic backup/${SERVICE_NAME}/time"
+mosquitto_pub -h "${MOSQUITTO_HOST}" -t "backup/${SERVICE_NAME}/time" -m "${TIMESTAMP_RFC3339}" -u "${MOSQUITTO_USERNAME}" -P "${MOSQUITTO_PASSWORD}" --retain
 
 # Cleanup
 rm -rf "${BACKUP_DIR}" "${TAR_FILE}"

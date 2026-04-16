@@ -52,8 +52,8 @@ Key directories on target host:
 - `/var/lib/unifi` - Application data
 
 ### Secrets Management
-Secrets are stored in AWS SSM Parameter Store (region: eu-west-2).
-Ansible retrieves them via `lookup('aws_ssm', '/path/to/secret', region='eu-west-2')`.
+Secrets are stored in AWS SSM Parameter Store (region: eu-west-1) under `/homelab/*`.
+Ansible retrieves them via `lookup('aws_ssm', '/homelab/path/to/secret', region='eu-west-1')`.
 
 ### External Dependencies
 Dependencies in `requirements.yml` are installed to `.roles/` (gitignored). External roles use SSH git URLs requiring SSH keys.
