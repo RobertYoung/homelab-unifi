@@ -27,3 +27,6 @@ unifi_backup_aws_access_key: ""
 unifi_backup_aws_secret_access_key: ""
 unifi_backup_aws_region: eu-west-2
 unifi_backup_s3_bucket: home-server-backup.iamrobertyoung.co.uk
+unifi_backup_mosquitto_host: mosquitto.local.iamrobertyoung.co.uk
+unifi_backup_mosquitto_username: "home-assistant"
+unifi_backup_mosquitto_password: ""

@@ -18,7 +18,7 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project     = "homelab-wazuh"
+      Project     = "homelab-unifi"
       ManagedBy   = "Terraform"
       Environment = "production"
     }

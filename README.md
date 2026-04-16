@@ -90,7 +90,7 @@ Run specific parts of the playbook:
 
 ## Secrets
 
-Secrets are stored in AWS SSM Parameter Store (eu-west-2) and retrieved via `lookup('aws_ssm', ...)`.
+Secrets are stored in AWS SSM Parameter Store (eu-west-1) under `/homelab/*` and retrieved via `lookup('aws_ssm', ..., region='eu-west-1')`.
 
 ## Adding Roles
 
