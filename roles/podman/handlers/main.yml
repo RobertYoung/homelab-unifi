@@ -1,0 +1,7 @@
+---
+- name: Restart podman
+  become: true
+  ansible.builtin.systemd:
+    name: podman
+    state: restarted
+  failed_when: false

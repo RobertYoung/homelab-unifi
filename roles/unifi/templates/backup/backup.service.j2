@@ -1,12 +1,7 @@
 [Unit]
-Description=Backup {{ service }} to S3
-After=network.target docker.service
-Requires=docker.service
+Description=Backup {{ unifi_service_name }} to S3
+OnFailure=mail-systemd-failure@%n.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/docker exec backup-toolkit /backup.sh
-User=root
-
-[Install]
-WantedBy=multi-user.target
+ExecStart=/usr/bin/podman exec backup-toolkit /bin/bash -c "./backup.sh"

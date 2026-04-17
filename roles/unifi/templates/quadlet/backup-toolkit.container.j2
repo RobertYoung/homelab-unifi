@@ -1,0 +1,17 @@
+[Unit]
+Description=Backup toolkit for unifi
+
+[Container]
+Image={{ unifi_backup_image_name }}:{{ unifi_backup_image_tag }}
+ContainerName=backup-toolkit
+Exec=sleep infinity
+Volume=unifi-data.volume:/backup/unifi
+Volume=mongodb-data.volume:/backup/mongodb
+EnvironmentFile={{ unifi_config_dir }}/backup-toolkit.env
+Network=unifi.network
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target default.target

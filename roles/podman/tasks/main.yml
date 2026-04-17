@@ -1,0 +1,53 @@
+---
+- name: Install Podman and dependencies
+  become: true
+  ansible.builtin.package:
+    name: "{{ ['podman'] + podman_additional_packages }}"
+    state: present
+
+- name: Ensure Podman socket is enabled
+  become: true
+  ansible.builtin.systemd:
+    name: podman.socket
+    enabled: true
+    state: started
+  when: podman_enable_socket
+
+- name: Enable lingering for users
+  become: true
+  ansible.builtin.command:
+    cmd: loginctl enable-linger {{ item }}
+  loop: "{{ podman_linger_users }}"
+  when: podman_linger_users | length > 0
+  changed_when: false
+
+- name: Create containers configuration directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/containers
+    state: directory
+    mode: "0755"
+
+- name: Configure container registries
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/containers/registries.conf
+    mode: "0644"
+    content: |
+      # Container registries configuration
+      unqualified-search-registries = ["docker.io", "quay.io", "ghcr.io"]
+
+      [[registry]]
+      prefix = "docker.io"
+      location = "docker.io"
+
+      [[registry.mirror]]
+      location = "mirror.gcr.io"
+  notify: Restart podman
+
+- name: Ensure Quadlet directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/containers/systemd
+    state: directory
+    mode: "0755"

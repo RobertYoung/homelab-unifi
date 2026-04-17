@@ -2,6 +2,7 @@
 # External Ansible dependencies
 # Install with:
 #   ansible-galaxy install -r requirements.yml -p .roles
+#   ansible-galaxy collection install -r requirements.yml
 
 roles:
   - src: git@github.com:RobertYoung/homelab-ansible-role-configure-system.git
@@ -13,11 +14,6 @@ roles:
     scm: git
     version: v1.4.2
     name: shell
-
-  - src: git@github.com:RobertYoung/homelab-ansible-role-docker.git
-    scm: git
-    version: v1.0.0
-    name: docker
 
   - src: git@github.com:RobertYoung/homelab-ansible-role-telegraf.git
     scm: git
@@ -38,3 +34,11 @@ roles:
     scm: git
     version: v1.3.2
     name: wazuh-agent
+
+collections:
+  - name: containers.podman
+    version: ">=1.10.0"
+  - name: amazon.aws
+    version: ">=9.0.0"
+  - name: community.aws
+    version: ">=9.0.0"
