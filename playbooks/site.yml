@@ -28,8 +28,8 @@
         shell_home_directory: /root
         shell_show_pretty_info: false
 
-    - role: docker
-      tags: [docker]
+    - role: podman
+      tags: [podman]
 
     - role: step-ca-client
       tags: [step-ca-client]
@@ -38,7 +38,7 @@
         step_ca_client_post_renew_commands:
           - "cp /etc/ssl/certs/{{ fqdn }}.crt /etc/unifi/certs/"
           - "cp /etc/ssl/private/{{ fqdn }}.pem /etc/unifi/certs/"
-          - "docker kill --signal=HUP traefik || echo 'Traefik not running'"
+          - "podman kill --signal=HUP traefik || echo 'Traefik not running'"
 
     - role: telegraf
       tags: [telegraf]

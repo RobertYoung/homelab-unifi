@@ -1,0 +1,81 @@
+---
+- name: Copy dockerfile
+  ansible.builtin.copy:
+    src: Dockerfile
+    dest: /tmp/Dockerfile
+    mode: "0644"
+  register: unifi_dockerfile_copy
+
+- name: Create backup script
+  become: true
+  ansible.builtin.copy:
+    src: backup.sh
+    dest: /tmp/backup.sh
+    mode: "0755"
+  register: unifi_backup_script_copy
+
+- name: Build Podman image
+  become: true
+  containers.podman.podman_image:
+    name: "{{ unifi_backup_image_name }}"
+    tag: "{{ unifi_backup_image_tag }}"
+    path: /tmp
+    push: false
+    force: "{{ unifi_dockerfile_copy.changed or unifi_backup_script_copy.changed }}"
+    state: present
+    build:
+      extra_args: "--network=host"
+  notify: Restart backup-toolkit
+
+- name: Create backup .env file
+  become: true
+  ansible.builtin.template:
+    src: env/backup-toolkit.env.j2
+    dest: "{{ unifi_config_dir }}/backup-toolkit.env"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+    mode: "0400"
+  notify: Restart backup-toolkit
+
+- name: Create backup systemd service file
+  become: true
+  ansible.builtin.template:
+    src: backup/backup.service.j2
+    dest: "/etc/systemd/system/{{ unifi_service_name }}-backup.service"
+    owner: root
+    group: root
+    mode: "0644"
+  register: unifi_backup_service_file
+
+- name: Create backup systemd timer file
+  become: true
+  ansible.builtin.template:
+    src: backup/backup.timer.j2
+    dest: "/etc/systemd/system/{{ unifi_service_name }}-backup.timer"
+    owner: root
+    group: root
+    mode: "0644"
+  vars:
+    service: "{{ unifi_service_name }}"
+    cron: "{{ unifi_backup_cron }}"
+  register: unifi_backup_timer_file
+
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: unifi_backup_service_file.changed or unifi_backup_timer_file.changed
+
+- name: Enable and start backup timer
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ unifi_service_name }}-backup.timer"
+    enabled: true
+    state: started
+
+- name: Enable and start backup-toolkit service
+  become: true
+  ansible.builtin.systemd:
+    name: backup-toolkit.service
+    enabled: true
+    state: started

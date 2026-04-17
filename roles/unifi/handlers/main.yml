@@ -1,15 +1,29 @@
 ---
-- name: Restart unifi
+- name: Reload systemd
   become: true
   ansible.builtin.systemd:
-    name: "{{ unifi_service_name }}"
-    state: restarted
     daemon_reload: true
 
-- name: Enable unifi backup timer
+- name: Restart unifi-controller
   become: true
   ansible.builtin.systemd:
-    name: "{{ unifi_service_name }}-backup.timer"
-    enabled: true
-    state: started
-    daemon_reload: true
+    name: unifi-controller
+    state: restarted
+
+- name: Restart mongodb
+  become: true
+  ansible.builtin.systemd:
+    name: mongodb
+    state: restarted
+
+- name: Restart traefik
+  become: true
+  ansible.builtin.systemd:
+    name: traefik
+    state: restarted
+
+- name: Restart backup-toolkit
+  become: true
+  ansible.builtin.systemd:
+    name: backup-toolkit
+    state: restarted

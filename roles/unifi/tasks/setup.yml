@@ -1,0 +1,18 @@
+---
+- name: Create config directory {{ unifi_config_dir }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ unifi_config_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"
+
+- name: Create cert directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ unifi_cert_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ unifi_user }}"
+    group: "{{ unifi_user }}"

@@ -1,0 +1,14 @@
+---
+# Podman configuration
+
+# Enable Podman socket for compatibility with Docker API tools
+podman_enable_socket: true
+
+# Users to enable lingering for (allows user services to run without login)
+podman_linger_users: []
+
+# Additional packages to install alongside Podman (Debian/Ubuntu)
+podman_additional_packages:
+  - aardvark-dns
+  - slirp4netns
+  - uidmap
