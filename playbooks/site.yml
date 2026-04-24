@@ -1,5 +1,5 @@
 ---
-- name: UniFi server configuration
+- name: UniFi OS Server configuration
   hosts: unifi
   vars:
     hostname: unifi
@@ -57,12 +57,10 @@
     - role: wazuh-agent
       tags: [wazuh-agent]
 
-    - role: unifi
-      tags: [unifi]
+    - role: unifi-os-server
+      tags: [unifi-os-server]
       vars:
-        unifi_service_domain: "{{ fqdn }}"
-        unifi_mongodb_root_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-root-password', region='eu-west-1') }}"
-        unifi_mongodb_password: "{{ lookup('aws_ssm', '/homelab/unifi/mongodb-unifi-password', region='eu-west-1') }}"
-        unifi_backup_aws_access_key: "{{ lookup('aws_ssm', '/homelab/aws/access-key', region='eu-west-1') }}"
-        unifi_backup_aws_secret_access_key: "{{ lookup('aws_ssm', '/homelab/aws/secret-access-key', region='eu-west-1') }}"
-        unifi_backup_mosquitto_password: "{{ lookup('aws_ssm', '/homelab/mosquitto/home-assistant-password', region='eu-west-1') }}"
+        uosserver_service_domain: "{{ fqdn }}"
+        uosserver_backup_aws_access_key: "{{ lookup('aws_ssm', '/homelab/aws/access-key', region='eu-west-1') }}"
+        uosserver_backup_aws_secret_access_key: "{{ lookup('aws_ssm', '/homelab/aws/secret-access-key', region='eu-west-1') }}"
+        uosserver_backup_mosquitto_password: "{{ lookup('aws_ssm', '/homelab/mosquitto/home-assistant-password', region='eu-west-1') }}"

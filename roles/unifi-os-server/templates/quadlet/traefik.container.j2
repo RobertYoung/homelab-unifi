@@ -1,0 +1,20 @@
+[Unit]
+Description=Traefik reverse proxy
+After=uosserver.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Container]
+Image=docker.io/library/traefik:v3.6
+ContainerName=traefik
+PublishPort=443:443
+Volume={{ uosserver_traefik_config_dir }}/traefik.yml:/etc/traefik/traefik.yml:ro
+Volume={{ uosserver_traefik_config_dir }}/dynamic:/etc/traefik/dynamic:ro
+Volume={{ uosserver_cert_dir }}:/certs:ro
+AddHost=host.containers.internal:host-gateway
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target default.target

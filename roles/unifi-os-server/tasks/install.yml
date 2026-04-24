@@ -1,0 +1,48 @@
+---
+# UniFi OS Server install flow — the installer owns its own Podman containers
+# and systemd units, so we only need to provide dependencies + run the binary.
+
+- name: Install UniFi OS Server dependencies
+  become: true
+  ansible.builtin.package:
+    name:
+      - podman
+      - slirp4netns
+      - curl
+    state: present
+
+- name: Check whether UniFi OS Server is already installed
+  become: true
+  ansible.builtin.stat:
+    path: /usr/local/bin/uosserver
+  register: uosserver_binary
+
+- name: Download UniFi OS Server installer
+  become: true
+  ansible.builtin.get_url:
+    url: "{{ uosserver_installer_url }}"
+    dest: "{{ uosserver_installer_tmp_path }}"
+    mode: "0755"
+    checksum: "{{ uosserver_installer_checksum or omit }}"
+  when: not uosserver_binary.stat.exists
+
+- name: Run UniFi OS Server installer
+  become: true
+  ansible.builtin.shell:
+    cmd: "set -o pipefail; printf 'y\\n' | {{ uosserver_installer_tmp_path }}"
+    executable: /bin/bash
+  when: not uosserver_binary.stat.exists
+  changed_when: true
+
+- name: Ensure UniFi OS Server service is enabled and running
+  become: true
+  ansible.builtin.systemd:
+    name: uosserver
+    enabled: true
+    state: started
+
+- name: Remove installer binary
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_installer_tmp_path }}"
+    state: absent

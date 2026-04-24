@@ -1,0 +1,70 @@
+---
+- name: Create traefik config directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_traefik_config_dir }}"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Create traefik dynamic config directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_traefik_config_dir }}/dynamic"
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Deploy traefik static config
+  become: true
+  ansible.builtin.template:
+    src: "traefik/traefik.yml.j2"
+    dest: "{{ uosserver_traefik_config_dir }}/traefik.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart traefik
+
+- name: Deploy traefik TLS config
+  become: true
+  ansible.builtin.template:
+    src: "traefik/dynamic/tls.yml.j2"
+    dest: "{{ uosserver_traefik_config_dir }}/dynamic/tls.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart traefik
+
+- name: Deploy traefik services config
+  become: true
+  ansible.builtin.template:
+    src: "traefik/dynamic/services.yml.j2"
+    dest: "{{ uosserver_traefik_config_dir }}/dynamic/services.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart traefik
+
+- name: Deploy traefik quadlet
+  become: true
+  ansible.builtin.template:
+    src: "quadlet/traefik.container.j2"
+    dest: "{{ uosserver_quadlet_dir }}/traefik.container"
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart traefik
+
+- name: Reload systemd daemon
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start traefik
+  become: true
+  ansible.builtin.systemd:
+    name: traefik
+    state: started
+    enabled: true
