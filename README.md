@@ -1,6 +1,6 @@
 # Homelab UniFi
 
-Ansible project for deploying [UniFi Controller](https://ui.com/consoles) on a single host.
+Ansible project for deploying [UniFi OS Server](https://ui.com/download/software/unifi-os-server) on a single host.
 
 **Target host:** `unifi.local.iamrobertyoung.co.uk`
 
@@ -14,7 +14,7 @@ Ansible project for deploying [UniFi Controller](https://ui.com/consoles) on a s
 │   └── group_vars/             # Group variables
 ├── host_vars/                  # Host-specific variables
 ├── roles/
-│   └── unifi/                  # Custom UniFi role
+│   └── unifi-os-server/        # Custom UniFi OS Server role
 ├── .roles/                     # External roles (gitignored)
 ├── playbooks/
 │   └── site.yml                # Main playbook
@@ -57,7 +57,7 @@ aws-vault exec iamrobertyoung:home-assistant-production:p -- ansible-playbook pl
 ### Run specific role
 
 ```bash
-aws-vault exec iamrobertyoung:home-assistant-production:p -- ansible-playbook playbooks/site.yml --tags unifi
+aws-vault exec iamrobertyoung:home-assistant-production:p -- ansible-playbook playbooks/site.yml --tags unifi-os-server
 ```
 
 ## Roles
@@ -68,12 +68,12 @@ The playbook applies these roles in order:
 |------|--------|-------------|
 | `configure-system` | External | Base system configuration |
 | `shell` | External | Shell setup (noxious, root users) |
-| `docker` | External | Docker installation |
-| `telegraf` | External | Metrics collection to InfluxDB |
+| `podman` | External | Podman installation |
 | `step-ca-client` | External | TLS certificates from Step CA |
+| `telegraf` | External | Metrics collection to InfluxDB |
 | `syslog` | External | Syslog configuration |
 | `wazuh-agent` | External | Wazuh security agent |
-| `unifi` | Custom | UniFi Controller deployment |
+| `unifi-os-server` | Custom | UniFi OS Server deployment |
 
 ## Available Tags
 
@@ -81,12 +81,12 @@ Run specific parts of the playbook:
 
 - `configure-system`
 - `shell`
-- `docker`
-- `telegraf`
+- `podman`
 - `step-ca-client`
+- `telegraf`
 - `syslog`
 - `wazuh-agent`
-- `unifi`
+- `unifi-os-server`
 
 ## Secrets
 
