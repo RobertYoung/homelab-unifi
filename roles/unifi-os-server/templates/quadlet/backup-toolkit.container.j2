@@ -1,0 +1,15 @@
+[Unit]
+Description=Backup toolkit for {{ uosserver_service_name }}
+
+[Container]
+Image={{ uosserver_backup_image_name }}:{{ uosserver_backup_image_tag }}
+ContainerName=backup-toolkit
+Exec=sleep infinity
+Volume={{ uosserver_backup_source_dir }}:/backup/unifi:ro
+EnvironmentFile={{ uosserver_config_dir }}/backup-toolkit.env
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target default.target

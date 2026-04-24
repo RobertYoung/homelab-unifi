@@ -1,0 +1,36 @@
+---
+- name: Setup system
+  ansible.builtin.include_tasks:
+    file: setup.yml
+    apply:
+      tags:
+        - setup
+  tags:
+    - always
+
+- name: Install UniFi OS Server
+  ansible.builtin.include_tasks:
+    file: install.yml
+    apply:
+      tags:
+        - install
+  tags:
+    - always
+
+- name: Setup traefik
+  ansible.builtin.include_tasks:
+    file: traefik.yml
+    apply:
+      tags:
+        - traefik
+  tags:
+    - always
+
+- name: Setup backup
+  ansible.builtin.include_tasks:
+    file: backup.yml
+    apply:
+      tags:
+        - backup
+  tags:
+    - always

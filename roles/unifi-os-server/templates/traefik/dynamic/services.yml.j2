@@ -1,0 +1,19 @@
+http:
+  routers:
+    unifi:
+      rule: "Host(`{{ uosserver_service_domain }}`)"
+      entrypoints:
+        - websecure
+      service: unifi
+      tls: {}
+
+  services:
+    unifi:
+      loadBalancer:
+        serversTransport: insecure
+        servers:
+          - url: "{{ uosserver_upstream_url }}"
+
+  serversTransports:
+    insecure:
+      insecureSkipVerify: true

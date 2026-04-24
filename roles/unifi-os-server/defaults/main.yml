@@ -1,0 +1,49 @@
+---
+# UniFi OS Server role defaults
+
+# Service name (used for systemd backup units and S3/MQTT topics)
+uosserver_service_name: unifi
+
+# Directory paths
+uosserver_config_dir: /etc/unifi
+
+# Quadlet directory (for our Traefik + backup-toolkit containers — UniFi OS Server manages its own)
+uosserver_quadlet_dir: /etc/containers/systemd
+
+# UniFi OS Server on-disk backup directory.
+# Verified during Phase 0 spike: UniFi OS Server writes .unf backups here.
+uosserver_backup_source_dir: /var/lib/uosserver/unifi-core/unifi/backup/autobackup
+
+# UniFi OS Server installer
+# Pinned to v5.0.6 x64. Bump deliberately — installer URLs are version-specific.
+uosserver_installer_version: "5.0.6"
+uosserver_installer_url: "https://fw-download.ubnt.com/data/unifi-os-server/1856-linux-x64-5.0.6-33f4990f-6c68-4e72-9d9c-477496c22450.6-x64"
+uosserver_installer_checksum: ""  # Populate once a known-good checksum is in hand
+uosserver_installer_tmp_path: /tmp/unifi-os-server-installer
+
+# Local user (matches homelab convention)
+uosserver_user: ansible
+uosserver_user_uid: 1000
+uosserver_user_gid: 1000
+
+# Traefik configuration (fronts UniFi OS Server on :11443)
+uosserver_traefik_config_dir: /etc/traefik
+uosserver_service_domain: ""
+uosserver_cert_dir: /etc/unifi/certs
+uosserver_upstream_url: "https://host.containers.internal:11443"
+
+# Backup configuration
+uosserver_backup_image_name: backup-toolkit
+uosserver_backup_image_tag: local
+uosserver_backup_cron: "*-*-* 04:00:00"
+uosserver_backup_aws_access_key: ""
+uosserver_backup_aws_secret_access_key: ""
+uosserver_backup_aws_region: eu-west-2
+uosserver_backup_s3_bucket: home-server-backup.iamrobertyoung.co.uk
+# Distinct S3 prefix while we run the new stack in parallel with the old one.
+uosserver_backup_s3_prefix: unifi-v2
+uosserver_backup_mosquitto_host: mosquitto.local.iamrobertyoung.co.uk
+uosserver_backup_mosquitto_username: "home-assistant"
+uosserver_backup_mosquitto_password: ""
+# Distinct MQTT topic so Home Assistant can tell the two backups apart.
+uosserver_backup_mosquitto_topic: "backup/unifi-v2/time"

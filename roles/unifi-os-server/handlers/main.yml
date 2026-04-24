@@ -1,0 +1,17 @@
+---
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Restart traefik
+  become: true
+  ansible.builtin.systemd:
+    name: traefik
+    state: restarted
+
+- name: Restart backup-toolkit
+  become: true
+  ansible.builtin.systemd:
+    name: backup-toolkit
+    state: restarted

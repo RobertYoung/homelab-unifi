@@ -1,0 +1,7 @@
+[Unit]
+Description=Backup {{ uosserver_service_name }} to S3
+OnFailure=mail-systemd-failure@%n.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/podman exec backup-toolkit /bin/bash -c "./backup.sh"

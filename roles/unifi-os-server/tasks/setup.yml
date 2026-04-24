@@ -1,0 +1,29 @@
+---
+- name: Create config directory {{ uosserver_config_dir }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_config_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ uosserver_user }}"
+    group: "{{ uosserver_user }}"
+
+- name: Create cert directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_cert_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ uosserver_user }}"
+    group: "{{ uosserver_user }}"
+
+- name: Pre-create backup source directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ uosserver_backup_source_dir }}"
+    state: directory
+    mode: "0755"
+  # UniFi OS Server only materialises this path after first-run init + a
+  # backup has been taken. Creating it upfront lets the backup-toolkit
+  # quadlet start cleanly; backup.sh reports "no .unf found" until real
+  # backups appear. Revisit path once the real location is confirmed.
